@@ -1,6 +1,6 @@
 #!/bin/bash
 
-HOME_DIR=$(cd "$(dirname "$0")"; cd ..; pwd)
+HOME_DIR=$(cd "$(dirname "$0")"; pwd)
 CONF_DIR=${HOME_DIR}/conf
 LOG_DIR=${HOME_DIR}/log
 SCRIPT_DIR=${HOME_DIR}/script
@@ -9,7 +9,6 @@ ETC_DIR=${HOME_DIR}/etc
 source ${ETC_DIR}/colorprint.sh
 
 function init_vps() {
-    :
 cat << EOF >  /etc/sysctl.conf
 	fs.file-max = 655350
 	net.core.default_qdisc=fq
@@ -46,8 +45,8 @@ function build_v2ray_server_for_debian() {
     curl myip.ipip.net --proxy socks5://127.0.0.1:40000
 }
 
-function build_v2ray_server_for_centos() {
-  :
-}
+#function build_v2ray_server_for_centos() {
+#  :
+#}
 
 init_vps && build_v2ray_server_for_debian
