@@ -41,10 +41,20 @@ function build_v2ray_server_for_debian() {
     if [[ $? -eq 0 ]]; then
       _info "v2ray successed ......."
     else
-      _error "v2ray failed ......."
+      _error "v2ray failed ......." && exit 1
     fi
 
-    curl myip.ipip.net --proxy socks5://127.0.0.1:40000
+    sleep 5s
+
+    if [[ -z "$(curl chat.openai.com --proxy socks5://127.0.0.1:40000)" ]]; then 
+      _info "wrap successed "
+    else
+      _error "wrap failed" && exit 3
+    fi 
+
+    # vps status
+    _info "current vps IP" $(curl -s cip.cc)
+    _info "cloudfare wrap IP " curl -s --proxy socks5://127.0.0.1:40000 cip.cc  
 }
 
 #function build_v2ray_server_for_centos() {
