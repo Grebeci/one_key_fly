@@ -29,10 +29,11 @@ function build_v2ray_server_for_debian() {
     # 安装wrap : 针对 chatGPT,new bing 隐藏地理位置
     curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" |  tee /etc/apt/sources.list.d/cloudflare-client.list
-    apt install cloudflare-warp
+    apt-get install cloudflare-warp
     warp-cli register
     warp-cli set-mode proxy  # 必须先启动代理，如果参考官网上的跳过这个，本地ssh/ping就会连不到vps了
     warp-cli connect
+
 
     service v2ray restart
     service v2ray status
