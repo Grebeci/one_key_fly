@@ -20,11 +20,12 @@ function build_v2ray_server_for_debian() {
     # 安装 v2ray
     apt-get install -y curl
     bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh)
+    [[ -f /usr/local/etc/v2ray/config.json ]] && rm -f /usr/local/etc/v2ray/config.json
     cp ${CONF_DIR}/config.json /usr/local/etc/v2ray/config.json
 
     #防火墙
-    ufw status
     ufw allow 60822
+    ufw status
 
     # 安装wrap : 针对 chatGPT,new bing 隐藏地理位置
     curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
@@ -53,8 +54,10 @@ function build_v2ray_server_for_debian() {
     fi 
 
     # vps status
-    _info "current vps IP" $(curl -s cip.cc)
-    _info "cloudfare wrap IP " curl -s --proxy socks5://127.0.0.1:40000 cip.cc  
+    _info "current vps IP" 
+    echo  $(curl -s cip.cc)
+    _info "cloudfare wrap IP "
+    echo  $(curl -s --proxy socks5://127.0.0.1:40000 cip.cc)  
 }
 
 #function build_v2ray_server_for_centos() {

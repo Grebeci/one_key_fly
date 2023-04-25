@@ -18,17 +18,7 @@
   ],
   "outbounds": [
     {
-      "protocol": "freedom",
-      "settings": {},
-      "tag": "allowed"
-    },
-    {
-      "protocol": "blackhole",
-      "settings": {},
-      "tag": "blocked"
-    },
-    {
-      "tag": "chatGPT_newbing_proxy",
+      "tag": "warp_proxy",
       "protocol": "socks",
       "settings": {
         "servers": [
@@ -39,27 +29,13 @@
         ]
       }
     }
-
   ],
   "routing": {
     "domainStrategy":"IPOnDemand",
     "rules": [
       {
           "type":"field",
-          "outboundTag":"chatGPT_newbing_proxy",
-          "domain":[
-             "openai.com",
-             "bing.com"
-          ]
-       },
-       {
-         "domain": [
-           "google.com",
-           "apple.com",
-           "oppomobile.com"
-         ],
-         "type": "field",
-         "outboundTag": "allowed"
+          "outboundTag":"warp_proxy"
        }
     ]
   }
