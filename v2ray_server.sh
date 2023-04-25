@@ -20,7 +20,7 @@ function build_v2ray_server_for_debian() {
     # 安装 v2ray
     apt-get install -y curl
     bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh)
-    cp ${CONF_DIR}/config.json /usr/local/etc/config.json
+    cp ${CONF_DIR}/config.json /usr/local/etc/v2ray/config.json
 
     #防火墙
     ufw status
