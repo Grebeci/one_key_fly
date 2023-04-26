@@ -2,8 +2,6 @@
 
 HOME_DIR=$(cd "$(dirname "$0")"; pwd)
 CONF_DIR=${HOME_DIR}/conf
-LOG_DIR=${HOME_DIR}/log
-SCRIPT_DIR=${HOME_DIR}/script
 ETC_DIR=${HOME_DIR}/etc
 
 source ${ETC_DIR}/colorprint.sh
@@ -30,14 +28,17 @@ function build_v2ray_server_for_debian() {
     # 安装wrap : 针对 chatGPT,new bing 隐藏地理位置
     curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" |  tee /etc/apt/sources.list.d/cloudflare-client.list
+    
     apt-get update
     apt-get -y install cloudflare-warp
+    warp-cli delete
     warp-cli register
     warp-cli set-mode proxy  # 必须先启动代理，如果参考官网上的跳过这个，本地ssh/ping就会连不到vps了
     warp-cli connect
 
 
     service v2ray restart
+    sleep 5s 
     service v2ray status
     if [[ $? -eq 0 ]]; then
       _info "v2ray successed ......."
@@ -55,9 +56,9 @@ function build_v2ray_server_for_debian() {
 
     # vps status
     _info "current vps IP" 
-    echo  $(curl -s cip.cc)
+    echo  -e "$(curl -s cip.cc)"
     _info "cloudfare wrap IP "
-    echo  $(curl -s --proxy socks5://127.0.0.1:40000 cip.cc)  
+    echo -e "$(curl -s --proxy socks5://127.0.0.1:40000 cip.cc)"  
 }
 
 #function build_v2ray_server_for_centos() {
