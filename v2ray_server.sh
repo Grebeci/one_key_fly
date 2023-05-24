@@ -6,6 +6,11 @@ ETC_DIR=${HOME_DIR}/etc
 
 source ${ETC_DIR}/colorprint.sh
 
+export SQUID_HTTPS_PORT="22806"
+export DOMAIN="grebeci.top"
+export LOCALNET="219.143.130.34/8"
+
+
 function init_vps() {
 cat << EOF >  /etc/sysctl.conf
 	fs.file-max = 655350
@@ -61,8 +66,66 @@ function build_v2ray_server_for_debian() {
     echo -e "$(curl -s --proxy socks5://127.0.0.1:40000 cip.cc)"  
 }
 
-#function build_v2ray_server_for_centos() {
-#  :
-#}
+function build_squid_server_for_debian() {
+  echo 1 > /proc/sys/net/ipv4/ip_forward
+  apt install squid -y
+  [[ -f /etc/squid/squid.conf ]] && rm -rf /etc/squid/squid.conf
+  cp ${CONF_DIR}/squid.conf /etc/squid/squid.conf
+
+  # Configurating Squid 
+  rm -rf /etc/squid/conf.d/*
+  # 1. SSL configuration for Squid 
+  apply_SSL_cert_by_acme
+cat << EOF > /etc/squid/conf.d/port.conf
+https_port "${SQUID_HTTPS_PORT}" tls-cert=/etc/ssl/certs/grebeci.top.cert tls-key=/etc/ssl/certs/grebeci.top.key
+EOF
+  
+  # 2. allow IP pass 
+cat << EOF > /etc/squid/conf.d/acl.conf
+acl localnet src ${LOCALNET}
+EOF
+
+  # 3. user auth
+  rm -rf /etc/squid/passwords
+  htpasswd -cd /etc/squid/passwords squid
+cat << EOF > /etc/squid/conf.d/auth.conf
+auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwords
+auth_param basic children 5
+auth_param basic realm Squid proxy-caching web server
+auth_param basic credentialsttl 30 minutes
+auth_param basic casesensitive on
+acl ncsa_users proxy_auth REQUIRED
+http_access allow ncsa_users
+EOF
+
+  # start & test 
+  systemctl restart squid.service
+  systemctl status  squid.service
+
+  curl -v --proxy https://grebeci.top:"${SQUID_HTTPS_PORT}" google.com
+
+}
+
+# 通过acme 申请SSL证书，dns api方式， dns为 cf
+function apply_SSL_cert_by_acme() {
+  
+  [[ -d /root/.acme ]] && rm -rf /root/.acme
+  curl "https://get.acme.sh" | sh -s 
+
+  alias acme.sh='bash /root/.acme.sh/acme.sh'
+
+  export CF_Key="64d8d1015e5d7d446131ea51e7054f0570846"
+  export CF_Email="grebeci_@outlook.com"
+
+  acme.sh --set-default-ca --server letsencrypt --force \
+          --issue --dns dns_cf  -d grebeci.top -d www.grebeci.top \
+          --accountemail grebeci_@outlook.com
+
+  acme.sh --installcert -d grebeci.top \
+          --key-file /etc/ssl/certs/grebeci.top.key  \
+          --cert-file /etc/ssl/certs/grebeci.top.cert \
+          --fullchain-file /etc/ssl/certs/grebeci.top.cert \
+          --ca-file /etc/ssl/certs/ca.cer
+}
 
 init_vps && build_v2ray_server_for_debian
