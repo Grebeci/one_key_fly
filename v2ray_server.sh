@@ -1,4 +1,5 @@
 #!/bin/bash
+shopt -s expand_aliases
 
 HOME_DIR=$(cd "$(dirname "$0")"; pwd)
 CONF_DIR=${HOME_DIR}/conf
