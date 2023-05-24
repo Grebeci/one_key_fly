@@ -7,6 +7,7 @@ ETC_DIR=${HOME_DIR}/etc
 
 source ${ETC_DIR}/colorprint.sh
 
+export V2RAY_POER="60822"
 export SQUID_HTTPS_PORT="22806"
 export DOMAIN="grebeci.top"
 export LOCALNET="219.143.130.34/8"
@@ -26,9 +27,10 @@ function build_v2ray_server_for_debian() {
     bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh)
     [[ -f /usr/local/etc/v2ray/config.json ]] && rm -f /usr/local/etc/v2ray/config.json
     cp ${CONF_DIR}/config.json /usr/local/etc/v2ray/config.json
+    sed -i "s/\"port\": 60822,/\"port\": ${V2RAY_POER},/g"  /usr/local/etc/v2ray/config.json
 
     #防火墙
-    ufw allow 60822
+    ufw allow ${V2RAY_POER}
     ufw status
 
     # 安装wrap : 针对 chatGPT,new bing 隐藏地理位置
@@ -75,6 +77,7 @@ function build_squid_server_for_debian() {
 
   # Configurating Squid 
   rm -rf /etc/squid/conf.d/*
+  
   # 1. SSL configuration for Squid 
   apply_SSL_cert_by_acme
 cat << EOF > /etc/squid/conf.d/port.conf
@@ -104,12 +107,9 @@ EOF
   ufw allow ${SQUID_HTTPS_PORT}/udp
   ufw status
 
-  # start & test 
+  # start 
   systemctl restart squid.service
   systemctl status  squid.service
-
-  curl -v --proxy https://grebeci.top:"${SQUID_HTTPS_PORT}" google.com
-
 }
 
 # 通过acme 申请SSL证书，dns api方式， dns为 cf
