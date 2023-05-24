@@ -99,6 +99,11 @@ acl ncsa_users proxy_auth REQUIRED
 http_access allow ncsa_users
 EOF
 
+  # firewall
+  ufw allow ${SQUID_HTTPS_PORT}/tcp 
+  ufw allow ${SQUID_HTTPS_PORT}/udp
+  ufw status
+
   # start & test 
   systemctl restart squid.service
   systemctl status  squid.service
@@ -112,20 +117,19 @@ function apply_SSL_cert_by_acme() {
   
   [[ -d /root/.acme ]] && rm -rf /root/.acme
   curl "https://get.acme.sh" | sh -s 
-  alias acme.sh='bash /root/.acme.sh/acme.sh'
 
   export CF_Key="64d8d1015e5d7d446131ea51e7054f0570846"
   export CF_Email="grebeci_@outlook.com"
   
-  acme.sh --set-default-ca --server letsencrypt --force \
+  /root/.acme.sh/acme.sh --set-default-ca --server letsencrypt --force \
           --issue --dns dns_cf  -d grebeci.top -d www.grebeci.top \
           --accountemail grebeci_@outlook.com
 
-  acme.sh --installcert -d grebeci.top \
+  /root/.acme.sh/acme.sh --installcert -d grebeci.top \
           --key-file /etc/ssl/certs/grebeci.top.key  \
           --cert-file /etc/ssl/certs/grebeci.top.cert \
           --fullchain-file /etc/ssl/certs/grebeci.top.cert \
           --ca-file /etc/ssl/certs/ca.cer
 }
 
-init_vps && build_v2ray_server_for_debian
+init_vps && build_v2ray_server_for_debian && build_squid_server_for_debian
