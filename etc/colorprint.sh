@@ -12,6 +12,7 @@ __green() {
  printf -- "%b" "$1"
 }
 
+
 __red() {
  if [[ "${__INTERACTIVE}" = "1" ]]; then
    printf '\033[1;31m%b\033[0m' "$1"
@@ -19,6 +20,14 @@ __red() {
  fi
  printf -- "%b" "$1"
 }
+__yellow() {
+  if [[ "${__INTERACTIVE}" = "1" ]]; then
+    printf '\033[1;33m%b\033[0m' "$1"
+    return
+  fi
+  printf -- "%b" "$1"
+}
+
 
 _err() {
  printf -- "%s" "[$(date)] " >&2
@@ -36,6 +45,16 @@ _info() {
    __green "$1"
  else
    __green "$1='$2'"
+ fi
+ printf "\n"
+}
+
+_problem() {
+ printf -- "%s" "[$(date)] "
+ if [ -z "$2" ]; then
+   __yellow "$1"
+ else
+   __yellow "$1='$2'"
  fi
  printf "\n"
 }
