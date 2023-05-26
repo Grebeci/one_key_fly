@@ -10,7 +10,7 @@ export CF_TOKEN_DNS="${CF_TOKEN_DNS}"
 export ZONE_ID="${ZONE_ID}"
 
 function check_vars() {
-    VARIABLES=("V2RAY_POER" "VASQUID_HTTPS_PORTR2" "DOMAIN" "CF_Key" "CF_Email" "LOCALNET" "CF_TOKEN_DNS" "ZONE_ID")
+    VARIABLES=("V2RAY_POER" "SQUID_HTTPS_PORT" "DOMAIN" "CF_Key" "CF_Email" "LOCALNET" "CF_TOKEN_DNS" "ZONE_ID")
     empty_count=0
 
     for var in "${VARIABLES[@]}"; do
