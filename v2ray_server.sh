@@ -155,4 +155,10 @@ function bind_domain_for_vps() {
     }'
 }
 
-init_vps && build_v2ray_server_for_debian && build_squid_server_for_debian && bind_domain_for_vps
+function install_all() {
+  init_vps && build_v2ray_server_for_debian && build_squid_server_for_debian && bind_domain_for_vps
+}
+
+function install_v2ray(){
+   init_vps && build_v2ray_server_for_debian && bind_domain_for_vps
+}
