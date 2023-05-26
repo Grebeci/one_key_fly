@@ -107,6 +107,10 @@ EOF
   systemctl status  squid.service
 }
 
+function build_nginx_server_for_debian() {
+
+}
+
 # 通过acme 申请SSL证书，dns api方式， dns为 cf
 function apply_SSL_cert_by_acme() {
   
@@ -120,7 +124,7 @@ function apply_SSL_cert_by_acme() {
   /root/.acme.sh/acme.sh --installcert -d grebeci.top \
           --key-file /etc/ssl/certs/grebeci.top.key  \
           --cert-file /etc/ssl/certs/grebeci.top.cert \
-          --fullchain-file /etc/ssl/certs/grebeci.top.cert \
+          --fullchain-file /etc/ssl/certs/grebeci.top.pem \
           --ca-file /etc/ssl/certs/ca.cer
 }
 

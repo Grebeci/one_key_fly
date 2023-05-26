@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export VULTR_API_KEY=""
 function vps_firewall_strategy() {
 
   
