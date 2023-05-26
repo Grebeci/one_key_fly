@@ -6,12 +6,7 @@ CONF_DIR=${HOME_DIR}/conf
 ETC_DIR=${HOME_DIR}/etc
 
 source ${ETC_DIR}/colorprint.sh
-
-export V2RAY_POER="60822"
-export SQUID_HTTPS_PORT="22806"
-export DOMAIN="grebeci.top"
-export LOCALNET="219.143.130.34/8"
-
+source ${ETC_DIR}/public_vars.sh
 
 function init_vps() {
 cat << EOF >  /etc/sysctl.conf
@@ -77,7 +72,7 @@ function build_squid_server_for_debian() {
 
   # Configurating Squid 
   rm -rf /etc/squid/conf.d/*
-  
+
   # 1. SSL configuration for Squid 
   apply_SSL_cert_by_acme
 cat << EOF > /etc/squid/conf.d/port.conf
@@ -102,8 +97,7 @@ acl ncsa_users proxy_auth REQUIRED
 http_access allow ncsa_users
 EOF
 
-  # firewall
-  ufw allow ${SQUID_HTTPS_PORT}/tcp 
+  # firewall  ufw allow ${SQUID_HTTPS_PORT}/tcp 
   ufw allow ${SQUID_HTTPS_PORT}/udp
   ufw status
 
@@ -117,13 +111,10 @@ function apply_SSL_cert_by_acme() {
   
   [[ -d /root/.acme ]] && rm -rf /root/.acme
   curl "https://get.acme.sh" | sh -s 
-
-  export CF_Key="64d8d1015e5d7d446131ea51e7054f0570846"
-  export CF_Email="grebeci_@outlook.com"
   
-  /root/.acme.sh/acme.sh --set-default-ca --server letsencrypt --force \
-          --issue --dns dns_cf  -d grebeci.top -d www.grebeci.top \
-          --accountemail grebeci_@outlook.com
+  /root/.acme.sh/acme.sh --set-default-ca --server ZeroSSL --force \
+          --issue --dns dns_cf  -d ${DOMAIN} -d www.${DOMAIN} \
+          --accountemail ${CF_Email}
 
   /root/.acme.sh/acme.sh --installcert -d grebeci.top \
           --key-file /etc/ssl/certs/grebeci.top.key  \
@@ -132,4 +123,31 @@ function apply_SSL_cert_by_acme() {
           --ca-file /etc/ssl/certs/ca.cer
 }
 
-init_vps && build_v2ray_server_for_debian && build_squid_server_for_debian
+function bind_domain_for_vps() {
+  apt-get install -y jq
+  # 取DNS解析的 Record ID
+  record_id=$( \
+    curl -s --request GET \
+      --url https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records \
+      --header 'Content-Type: application/json' \
+      --header "Authorization: Bearer ${CF_TOKEN_DNS}" \
+      | jq -r '.result[] | select(.type == "A") | .id' \
+    )
+
+  vps_ip=$(curl -s https://httpbin.org/ip | jq -r '.origin')
+
+  curl -s --request PUT \
+    --url https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${record_id} \
+    --header "Authorization: Bearer ${CF_TOKEN_DNS}" \
+    --header 'Content-Type: application/json' \
+    --data '{
+    "content": "'"${vps_ip}"'" ,
+    "name": "'"${DOMAIN}"'",
+    "proxied": true,
+    "type": "A",
+    "comment": "Domain verification record",
+    "ttl": 3600
+    }'
+}
+
+init_vps && build_v2ray_server_for_debian && build_squid_server_for_debian && bind_domain_for_vps
