@@ -97,7 +97,8 @@ acl ncsa_users proxy_auth REQUIRED
 http_access allow ncsa_users
 EOF
 
-  # firewall  ufw allow ${SQUID_HTTPS_PORT}/tcp 
+  # firewall  
+  ufw allow ${SQUID_HTTPS_PORT}/tcp 
   ufw allow ${SQUID_HTTPS_PORT}/udp
   ufw status
 
