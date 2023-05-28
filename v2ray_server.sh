@@ -39,7 +39,6 @@ function build_v2ray_server_for_debian() {
     warp-cli set-mode proxy  # 必须先启动代理，如果参考官网上的跳过这个，本地ssh/ping就会连不到vps了
     warp-cli connect
 
-
     service  v2ray restart
     sleep 5s 
     systemctl --no-pager status v2ray
@@ -105,10 +104,6 @@ EOF
   # start 
   systemctl restart squid.service
   systemctl status  squid.service
-}
-
-function build_nginx_server_for_debian() {
-
 }
 
 # 通过acme 申请SSL证书，dns api方式， dns为 cf
