@@ -207,6 +207,7 @@ function is_ping_vps() {
     if [ $packet_loss -gt ${max_packet_loss} ]; then
       echo "failed"
       return
+    fi
   else
       echo "failed"
       return 

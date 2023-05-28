@@ -8,7 +8,7 @@ export CF_Email="${CF_Email}"
 export LOCALNET="${LOCALNET}"
 export CF_TOKEN_DNS="${CF_TOKEN_DNS}"
 export ZONE_ID="${ZONE_ID}"
-export V2RAY_PASSWORD="${V2RAY_PASSWORD}:-$(uuid)" 
+export V2RAY_PASSWORD="${V2RAY_PASSWORD:-$(uuid)}" 
 export VULTR_API_KEY="${VULTR_API_KEY}"
 
 function check_vars_vps() {
