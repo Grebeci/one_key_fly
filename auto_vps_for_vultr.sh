@@ -164,7 +164,8 @@ export DOMAIN="grebeci.top"
 apt-get install -y git
 rm -rf one_key_fly
 git clone https://github.com/Grebeci/one_key_fly.git
-bash one_key_fly/v2ray_server.sh
+. one_key_fly/v2ray_server.sh
+install_v2ray
 EOF
     
     # 修改本地v2ray,重启

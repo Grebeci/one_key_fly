@@ -157,3 +157,5 @@ function install_all() {
 function install_v2ray(){
    init_vps && build_v2ray_server_for_debian && bind_domain_for_vps
 }
+
+eval "$*"
