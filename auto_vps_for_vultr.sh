@@ -141,7 +141,7 @@ function create_instance() {
     instance_id=$(echo $init_instance_param | jq -r '.instance.id')
     default_password=$(echo $init_instance_param | jq -r '.instance.default_password')
     
-    sleep 30s
+    sleep 60s
     
     init_after_instance_param=$( \
        curl -s "https://api.vultr.com/v2/instances/${instance_id}" \
