@@ -182,7 +182,11 @@ EOF
 
     # test 连接
     proxy_ip=$(curl  --proxy "socks5://127.0..0.1:1080" http://httpbin.org/ip | jq -r '.origin')
-    [[ $proxy_ip -eq $vps_id ]] && _info "conect proxy" 
+    if [[ "$proxy_ip" -eq "$vps_id" ]];then
+      _info "conect proxy" 
+    else
+      _err  "conect proxy"
+    fi
 
     # 无线循环ping + if 强制更改  
     while true;
