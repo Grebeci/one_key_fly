@@ -6,9 +6,9 @@ ETC_DIR=${HOME_DIR}/etc
 
 source ${ETC_DIR}/colorprint.sh
 source ${ETC_DIR}/public_vars.sh
+check_vars
 
-export VULTR_API_KEY="UYI47ZRNUUCNACVL2OBFCOCUFCLWLXTDTZGA"
-export FIREWALL_GROUP_ID="27fd8237-c684-49d1-b258-d472bfce94e7"
+firewall_group_id="27fd8237-c684-49d1-b258-d472bfce94e7"
 
 function get_public_ip(){
   export PUBLIC_IP=$(curl -s http://httpbin.org/ip | jq -r '.origin')
@@ -17,7 +17,7 @@ function get_public_ip(){
 
 function update_vps_firewall_strategy() {
 
-  curl "https://api.vultr.com/v2/firewalls/${FIREWALL_GROUP_ID}/rules" \
+  curl "https://api.vultr.com/v2/firewalls/${firewall_group_id}/rules" \
   -X POST \
   -H "Authorization: Bearer ${VULTR_API_KEY}" \
   -H "Content-Type: application/json" \
@@ -31,7 +31,7 @@ function update_vps_firewall_strategy() {
     "notes" : "ping"
   }'
 
-  curl "https://api.vultr.com/v2/firewalls/${FIREWALL_GROUP_ID}/rules" \
+  curl "https://api.vultr.com/v2/firewalls/${firewall_group_id}/rules" \
   -X POST \
   -H "Authorization: Bearer ${VULTR_API_KEY}" \
   -H "Content-Type: application/json" \
@@ -46,7 +46,7 @@ function update_vps_firewall_strategy() {
   }'
 
 
-  curl "https://api.vultr.com/v2/firewalls/${FIREWALL_GROUP_ID}/rules" \
+  curl "https://api.vultr.com/v2/firewalls/${firewall_group_id}/rules" \
   -X POST \
   -H "Authorization: Bearer ${VULTR_API_KEY}" \
   -H "Content-Type: application/json" \
@@ -60,7 +60,7 @@ function update_vps_firewall_strategy() {
     "notes" : "v2ray"
   }'
 
-  curl "https://api.vultr.com/v2/firewalls/${FIREWALL_GROUP_ID}/rules" \
+  curl "https://api.vultr.com/v2/firewalls/${firewall_group_id}/rules" \
   -X POST \
   -H "Authorization: Bearer ${VULTR_API_KEY}" \
   -H "Content-Type: application/json" \
@@ -103,7 +103,7 @@ function update_vps_firewall_strategy() {
   }'
 }
 
-export VPS_REGION_IDS=("lax" "atl" "cdg" sea)
+VPS_REGION_IDS=("sea","lax" "atl" "cdg")
 
 function create_instance() {
 
@@ -131,7 +131,7 @@ function create_instance() {
         "os_id" : 477,
         "backups" : "disabled",
         "hostname": "proxy",
-        "firewall_group_id": "'"${FIREWALL_GROUP_ID}"'"
+        "firewall_group_id": "'"${firewall_group_id}"'"
       }' \
     )
 
@@ -148,43 +148,62 @@ function create_instance() {
 
     instance_ip=$(echo $init_after_instance_param | jq -r '.instance.main_ip')
 
-    export VPS_IP="${instance_ip}"
+    vps_id="${instance_ip}"
     
     # ping instance
     [[ $(is_ping_vps) == "failed" ]] && contintue
 
     # ssh-cmd-v2ray
-    sshpass -p ${default_password} ssh -o "StrictHostKeyChecking=no" -T  root@${VPS_IP}  <<EOF
-export CF_Key="64d8d1015e5d7d446131ea51e7054f0570846"
-export CF_Email="grebeci_@outlook.com"
+    sshpass -p ${default_password} ssh -o "StrictHostKeyChecking=no" -T  root@${vps_id}  <<EOF
+export CF_Key="${CF_Key}"
+export CF_Email="${CF_Email}"
 export LOCALNET="$(get_public_ip)/8"
-export CF_TOKEN_DNS="adUcnUBfrh1y0c0bATGCRCr-xDJdbwnVuKOOpGAt"
-export ZONE_ID="25b7ae690060fd9919d1dda7d914487e"
-export DOMAIN="grebeci.top"
+export CF_TOKEN_DNS="${CF_TOKEN_DNS}"
+export ZONE_ID="${ZONE_ID}"
+export DOMAIN="${DOMAIN}"
+export V2RAY_PASSWORD="${V2RAY_PASSWORD}"
+
 apt-get install -y git
 rm -rf one_key_fly
 git clone https://github.com/Grebeci/one_key_fly.git
-. one_key_fly/v2ray_server.sh
-install_v2ray
+bash one_key_fly/v2ray_server.sh "install_v2ray"
 EOF
     
-    # 修改本地v2ray,重启
+    # 修改v2ray, restart v2ray, check v2ray status
+    sudo sed -i "s/\"address\": \".*\"/\"address\": \"$vps_id\"/" /usr/local/etc/v2ray/config.json
+    sudo sed -i "s/\"password\": \".*\"/\"password\": \"$V2RAY_PASSWORD\"/" /usr/local/etc/v2ray/config.json
+    sudo sed -i "s/\"port\": .*/\"port\": $V2RAY_POER/" /usr/local/etc/v2ray/config.json
+
+    sudo systemctl start v2ray
+    sudo systemctl status v2ray
 
     # test 连接
+    proxy_ip=$(curl  --proxy "socks5://127.0..0.1:1080" http://httpbin.org/ip | jq -r '.origin')
+    [[ $proxy_ip -eq $vps_id ]] && _info "conect proxy" 
 
     # 无线循环ping + if 强制更改  
-    
+    while true;
+    do
+      if [[ $(is_ping_vps) == "success" ]];then
+        sleep 10s
+      else 
+        break
+      fi 
+    done
+
+  
   done
 
-  #连接失败
+  # 建立代理失败
+  _err "尝试了所有vps，均失败"
   
 }
   
 function is_ping_vps() {
   max_packet_loss=50
 
-  if ping -c 10 -w 1 $VPS_IP >/dev/null; then
-    packet_loss=$(echo $(ping -c 10 -w 1 $VPS_IP) | grep -oP '\d+(?=% packet loss)')
+  if ping -c 10 -w 1 $vps_id >/dev/null; then
+    packet_loss=$(echo $(ping -c 10 -w 1 $vps_id) | grep -oP '\d+(?=% packet loss)')
     if [ $packet_loss -gt ${max_packet_loss} ]; then
       echo "failed"
       return
@@ -195,3 +214,5 @@ function is_ping_vps() {
 
   echo "success"
 }
+
+create_instance

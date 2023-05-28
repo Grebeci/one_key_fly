@@ -7,6 +7,7 @@ ETC_DIR=${HOME_DIR}/etc
 
 source ${ETC_DIR}/colorprint.sh
 source ${ETC_DIR}/public_vars.sh
+check_vars_vps
 
 function init_vps() {
 cat << EOF >  /etc/sysctl.conf
