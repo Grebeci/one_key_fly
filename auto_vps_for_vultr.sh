@@ -205,15 +205,14 @@ EOF
 function is_ping_vps() {
   max_packet_loss=50
 
-  if ping -c 10 -w 1 $vps_id >/dev/null; then
-    packet_loss=$(echo $(ping -c 10 -w 1 $vps_id) | grep -oP '\d+(?=% packet loss)')
-    if [ $packet_loss -gt ${max_packet_loss} ]; then
-      echo "failed"
-      return
-    fi
-  else
-      echo "failed"
-      return 
+  # 运行 ping 命令并提取丢包率
+  packet_loss=$(echo $(ping -c 20 -w 30 $vps_id) | grep -oP '\d+(\.\d+)?(?=% packet loss)')
+
+  # 检查丢包率是否大于最大丢包率
+  if [ $(echo "$packet_loss > $max_packet_loss" | bc) -eq 1 ]; then
+    # 如果丢包率大于最大丢包率，打印失败消息
+    echo "failed"
+    return
   fi
 
   echo "success"
