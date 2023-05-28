@@ -107,7 +107,7 @@ VPS_REGION_IDS=("sea" "lax" "atl" "cdg")
 
 function create_instance() {
 
-  for region_id in "${VPS_REGION_IDS}"
+  for region_id in "${VPS_REGION_IDS[@]}"
   do
 
     # create instance 
