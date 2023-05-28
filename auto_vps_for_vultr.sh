@@ -135,11 +135,11 @@ function create_instance() {
       }' \
     )
 
-    [[ $(echo $instance_param | grep -q "error") ]] && contintue
+    [[ $(echo $init_instance_param | grep -q "error") ]] && continue
 
     #获取vps的各项参数
-    instance_id=$(echo $instance_param | jq -r '.instance.id')
-    default_password=$(echo $instance_param | jq -r '.instance.default_password')
+    instance_id=$(echo $init_instance_param | jq -r '.instance.id')
+    default_password=$(echo $init_instance_param | jq -r '.instance.default_password')
     
     sleep 60s
     
@@ -149,12 +149,12 @@ function create_instance() {
       -H "Authorization: Bearer ${VULTR_API_KEY}" \
     )
 
-    [[ $(echo $init_after_instance_param | grep -q "error") ]] && contintue
+    [[ $(echo $init_after_instance_param | grep -q "error") ]] && continue
     instance_ip=$(echo $init_after_instance_param | jq -r '.instance.main_ip')
     vps_id="${instance_ip}"
     
     # ping instance
-    [[ $(is_ping_vps) == "failed" ]] && contintue
+    [[ $(is_ping_vps) == "failed" ]] && continue
 
     # ssh-cmd-v2ray
     sshpass -p ${default_password} ssh -o "StrictHostKeyChecking=no" -T  root@${vps_id}  <<EOF
