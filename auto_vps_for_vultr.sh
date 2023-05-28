@@ -103,7 +103,7 @@ function update_vps_firewall_strategy() {
   }'
 }
 
-VPS_REGION_IDS=("sea","lax" "atl" "cdg")
+VPS_REGION_IDS=("sea" "lax" "atl" "cdg")
 
 function create_instance() {
 
@@ -112,7 +112,7 @@ function create_instance() {
 
     # create instance 
     plan=$( \
-      curl -s "https://api.vultr.com/v2/regions/lax/availability?type=vc2" \
+      curl -s "https://api.vultr.com/v2/regions/${region_id}/availability?type=vc2" \
       -X GET \
       -H "Authorization: Bearer ${VULTR_API_KEY}" |  jq -r '.available_plans[0]' \
     )
@@ -135,10 +135,13 @@ function create_instance() {
       }' \
     )
 
+    [[ echo $instance_param | grep -q "error" ]] && contintue
+
     #获取vps的各项参数
     instance_id=$(echo $instance_param | jq -r '.instance.id')
     default_password=$(echo $instance_param | jq -r '.instance.default_password')
-    #sleep 60s
+    
+    sleep 60s
     
     init_after_instance_param=$( \
        curl -s "https://api.vultr.com/v2/instances/${instance_id}" \
@@ -146,8 +149,8 @@ function create_instance() {
       -H "Authorization: Bearer ${VULTR_API_KEY}" \
     )
 
+    [[ echo $init_after_instance_param | grep -q "error" ]] && contintue
     instance_ip=$(echo $init_after_instance_param | jq -r '.instance.main_ip')
-
     vps_id="${instance_ip}"
     
     # ping instance
