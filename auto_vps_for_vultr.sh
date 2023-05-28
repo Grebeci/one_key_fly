@@ -135,7 +135,7 @@ function create_instance() {
       }' \
     )
 
-    [[ echo $instance_param | grep -q "error" ]] && contintue
+    [[ $(echo $instance_param | grep -q "error") ]] && contintue
 
     #获取vps的各项参数
     instance_id=$(echo $instance_param | jq -r '.instance.id')
@@ -149,7 +149,7 @@ function create_instance() {
       -H "Authorization: Bearer ${VULTR_API_KEY}" \
     )
 
-    [[ echo $init_after_instance_param | grep -q "error" ]] && contintue
+    [[ $(echo $init_after_instance_param | grep -q "error") ]] && contintue
     instance_ip=$(echo $init_after_instance_param | jq -r '.instance.main_ip')
     vps_id="${instance_ip}"
     
