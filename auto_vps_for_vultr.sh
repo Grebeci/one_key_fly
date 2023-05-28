@@ -141,7 +141,7 @@ function create_instance() {
     instance_id=$(echo $init_instance_param | jq -r '.instance.id')
     default_password=$(echo $init_instance_param | jq -r '.instance.default_password')
     
-    sleep 60s
+    sleep 30s
     
     init_after_instance_param=$( \
        curl -s "https://api.vultr.com/v2/instances/${instance_id}" \
@@ -156,6 +156,7 @@ function create_instance() {
     # ping instance
     [[ $(is_ping_vps) == "failed" ]] && continue
 
+    sleep 120s
     # ssh-cmd-v2ray
     ssh-keygen -f "/home/grebeci/.ssh/known_hosts" -R "$vps_ip"
     sshpass -p ${default_password} ssh -o "StrictHostKeyChecking=no" -T  root@${vps_ip}  <<EOF
