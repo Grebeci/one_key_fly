@@ -151,13 +151,14 @@ function create_instance() {
 
     [[ $(echo $init_after_instance_param | grep -q "error") ]] && continue
     instance_ip=$(echo $init_after_instance_param | jq -r '.instance.main_ip')
-    vps_id="${instance_ip}"
+    vps_ip="${instance_ip}"
     
     # ping instance
     [[ $(is_ping_vps) == "failed" ]] && continue
 
     # ssh-cmd-v2ray
-    sshpass -p ${default_password} ssh -o "StrictHostKeyChecking=no" -T  root@${vps_id}  <<EOF
+    ssh-keygen -f "/home/grebeci/.ssh/known_hosts" -R "$vps_ip"
+    sshpass -p ${default_password} ssh -o "StrictHostKeyChecking=no" -T  root@${vps_ip}  <<EOF
 export CF_Key="${CF_Key}"
 export CF_Email="${CF_Email}"
 export LOCALNET="$(get_public_ip)/8"
@@ -173,7 +174,7 @@ bash one_key_fly/v2ray_server.sh "install_v2ray"
 EOF
     
     # 修改v2ray, restart v2ray, check v2ray status
-    sudo sed -i "s/\"address\": \".*\"/\"address\": \"$vps_id\"/" /usr/local/etc/v2ray/config.json
+    sudo sed -i "s/\"address\": \".*\"/\"address\": \"$vps_ip\"/" /usr/local/etc/v2ray/config.json
     sudo sed -i "s/\"password\": \".*\"/\"password\": \"$V2RAY_PASSWORD\"/" /usr/local/etc/v2ray/config.json
     sudo sed -i "s/\"port\": .*/\"port\": $V2RAY_POER/" /usr/local/etc/v2ray/config.json
 
@@ -182,7 +183,7 @@ EOF
 
     # test 连接
     proxy_ip=$(curl  --proxy "socks5://127.0..0.1:1080" http://httpbin.org/ip | jq -r '.origin')
-    if [[ "$proxy_ip" -eq "$vps_id" ]];then
+    if [[ "$proxy_ip" -eq "$vps_ip" ]];then
       _info "conect proxy" 
     else
       _err  "conect proxy"
@@ -210,7 +211,7 @@ function is_ping_vps() {
   max_packet_loss=50
 
   # 运行 ping 命令并提取丢包率
-  packet_loss=$(echo $(ping -c 20 -w 30 $vps_id) | grep -oP '\d+(\.\d+)?(?=% packet loss)')
+  packet_loss=$(echo $(ping -c 20 -w 30 $vps_ip) | grep -oP '\d+(\.\d+)?(?=% packet loss)')
 
   # 检查丢包率是否大于最大丢包率
   if [ $(echo "$packet_loss > $max_packet_loss" | bc) -eq 1 ]; then
