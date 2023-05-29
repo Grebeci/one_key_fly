@@ -10,6 +10,7 @@ export CF_TOKEN_DNS="${CF_TOKEN_DNS}"
 export ZONE_ID="${ZONE_ID}"
 export V2RAY_PASSWORD="${V2RAY_PASSWORD:-$(uuid)}" 
 export VULTR_API_KEY="${VULTR_API_KEY}"
+export REGION_ID=("sea" "lax" "atl" "cdg")
 
 function check_vars_vps() {
     VARIABLES=("V2RAY_POER" "SQUID_HTTPS_PORT" "DOMAIN" "CF_Key" "CF_Email" "LOCALNET" "CF_TOKEN_DNS" "ZONE_ID" "V2RAY_PASSWORD")
@@ -28,7 +29,7 @@ function check_vars_vps() {
 }
 
 function check_vars() {
-    VARIABLES=("V2RAY_POER" "SQUID_HTTPS_PORT" "DOMAIN" "CF_Key" "CF_Email" "LOCALNET" "CF_TOKEN_DNS" "ZONE_ID" "V2RAY_PASSWORD"  "VULTR_API_KEY")
+    VARIABLES=("V2RAY_POER" "SQUID_HTTPS_PORT" "DOMAIN" "CF_Key" "CF_Email" "LOCALNET" "CF_TOKEN_DNS" "ZONE_ID" "V2RAY_PASSWORD"  "VULTR_API_KEY" "REGION_ID")
     empty_count=0
 
     for var in "${VARIABLES[@]}"; do
