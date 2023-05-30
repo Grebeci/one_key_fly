@@ -34,7 +34,7 @@ function build_v2ray_server_for_debian() {
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" |  tee /etc/apt/sources.list.d/cloudflare-client.list
     
     apt-get update
-    apt-get -y install cloudflare-warp --accept-tos
+    apt-get -y install cloudflare-warp 
     [[ "$(warp-cli status)" == *"Connected"*  ]] && warp-cli delete
     echo y | warp-cli register
     warp-cli set-mode proxy  # 必须先启动代理，如果参考官网上的跳过这个，本地ssh/ping就会连不到vps了
