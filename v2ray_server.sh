@@ -10,11 +10,15 @@ source ${ETC_DIR}/public_vars.sh
 check_vars_vps
 
 function init_vps() {
-cat << EOF >  /etc/sysctl.conf
+  # bbr
+  cat << EOF >  /etc/sysctl.conf
 	fs.file-max = 655350
 	net.core.default_qdisc=fq
 	net.ipv4.tcp_congestion_control=bbr
 EOF
+  # Time zone
+  sudo timedatectl set-timezone Asia/Shanghai
+  date -R
 }
 
 function build_v2ray_server_for_debian() {
