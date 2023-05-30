@@ -37,8 +37,8 @@ function build_v2ray_server_for_debian() {
     apt-get -y install cloudflare-warp 
     [[ "$(warp-cli --accept-tos  status )" == *"Connected"*  ]] && warp-cli --accept-tos delete 
     echo y | warp-cli  --accept-tos register
-    warp-cli  set-mode proxy  # 必须先启动代理，如果参考官网上的跳过这个，本地ssh/ping就会连不到vps了
-    warp-cli connect 
+    warp-cli --accept-tos  set-mode proxy  # 必须先启动代理，如果参考官网上的跳过这个，本地ssh/ping就会连不到vps了
+    warp-cli --accept-tos connect 
 
     service  v2ray restart
     sleep 5s 
