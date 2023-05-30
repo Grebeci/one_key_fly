@@ -192,11 +192,11 @@ EOF
   sudo systemctl status v2ray
 
   # test proxy connect
-  proxy_ip=$(curl  --proxy "socks5://127.0..0.1:1080" http://httpbin.org/ip | jq -r '.origin')
-  if [[ "$proxy_ip" -eq "$vps_ip" ]];then
-    _info "successed!!! conect proxy" 
+  result=$(curl -s --proxy "socks5://127.0.0.1:1080" cip.cc )
+  if [[ "$result" == *"CLOUDFLARE.COM"* ]];then
+    _info "successed, conect proxy" 
   else
-    _err  "failed !! conect proxy" && exit 3
+    _err  "failed,  conect proxy" 
   fi
   
 }
