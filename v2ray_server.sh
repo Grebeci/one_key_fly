@@ -1,4 +1,6 @@
 #!/bin/bash
+
+
 shopt -s expand_aliases
 
 HOME_DIR=$(cd "$(dirname "$0")"; pwd)
@@ -7,26 +9,30 @@ ETC_DIR=${HOME_DIR}/etc
 
 source ${ETC_DIR}/colorprint.sh
 source ${ETC_DIR}/public_vars.sh
-check_vars_vps
 
 function init_vps() {
-cat << EOF >  /etc/sysctl.conf
+  # bbr
+  cat << EOF >  /etc/sysctl.conf
 	fs.file-max = 655350
 	net.core.default_qdisc=fq
 	net.ipv4.tcp_congestion_control=bbr
 EOF
+  # Time zone
+  sudo timedatectl set-timezone Asia/Shanghai
+  date -R
 }
 
 function build_v2ray_server_for_debian() {
+    check_vars V2RAY_PORT
     # 安装 v2ray
     apt-get install -y curl
     bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh)
     [[ -f /usr/local/etc/v2ray/config.json ]] && rm -f /usr/local/etc/v2ray/config.json
     cp ${CONF_DIR}/config.json /usr/local/etc/v2ray/config.json
-    sed -i "s/\"port\": 60822,/\"port\": ${V2RAY_POER},/g"  /usr/local/etc/v2ray/config.json
+    sed -i "s/\"port\": 60822,/\"port\": ${V2RAY_PORT},/g"  /usr/local/etc/v2ray/config.json
 
     #防火墙
-    ufw allow ${V2RAY_POER}
+    ufw allow ${V2RAY_PORT}
     ufw status
 
     # 安装wrap : 针对 chatGPT,new bing 隐藏地理位置
@@ -44,7 +50,7 @@ function build_v2ray_server_for_debian() {
     sleep 5s 
     systemctl --no-pager status v2ray
     if [[ $? -eq 0 ]]; then
-      _info "v2ray successed ......."
+      _info "v2ray successes ......."
     else
       _error "v2ray failed ......." && exit 1
     fi
@@ -52,7 +58,7 @@ function build_v2ray_server_for_debian() {
     sleep 5s
 
     if [[ -z "$(curl chat.openai.com --proxy socks5://127.0.0.1:40000)" ]]; then 
-      _info "wrap successed "
+      _info "wrap successes "
     else
       _error "wrap failed" && exit 3
     fi 
@@ -60,7 +66,7 @@ function build_v2ray_server_for_debian() {
     # vps status
     _info "current vps IP" 
     echo  -e "$(curl -s cip.cc)"
-    _info "cloudfare wrap IP "
+    _info "Cloudflare wrap IP "
     echo -e "$(curl -s --proxy socks5://127.0.0.1:40000 cip.cc)"  
 }
 
@@ -70,7 +76,7 @@ function build_squid_server_for_debian() {
   [[ -f /etc/squid/squid.conf ]] && rm -rf /etc/squid/squid.conf
   cp ${CONF_DIR}/squid.conf /etc/squid/squid.conf
 
-  # Configurating Squid 
+  # Configuration Squid
   rm -rf /etc/squid/conf.d/*
 
   # 1. SSL configuration for Squid 
@@ -156,7 +162,7 @@ function install_all() {
 }
 
 function install_v2ray(){
-   init_vps && build_v2ray_server_for_debian && bind_domain_for_vps
+   init_vps && build_v2ray_server_for_debian
 }
 
 eval "$*"

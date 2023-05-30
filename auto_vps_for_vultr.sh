@@ -64,7 +64,7 @@ function create_vps_firewall_strategy() {
   --data '{
     "ip_type" : "v4",
     "protocol" : "tcp",
-    "port" : "'"${V2RAY_POER}"'",
+    "port" : "'"${V2RAY_PORT}"'",
     "subnet" : "'"$(get_public_ip)"'",
     "subnet_size" : 24,
     "source" : "",
@@ -78,7 +78,7 @@ function create_vps_firewall_strategy() {
   --data '{
     "ip_type" : "v4",
     "protocol" : "udp",
-    "port" : "'"${V2RAY_POER}"'",
+    "port" : "'"${V2RAY_PORT}"'",
     "subnet" : "'"$(get_public_ip)"'",
     "subnet_size" : 24,
     "source" : "",
@@ -163,41 +163,6 @@ function create_instance() {
   [[ $(is_ping_vps) == "failed" ]] && _err "ping failed " &&  exit 1 
 
   sleep 120s
-
-  # ssh-cmd-v2ray
-  ssh-keygen -f "/home/grebeci/.ssh/known_hosts" -R "$vps_ip"
-  sshpass -p ${default_password} ssh -o "StrictHostKeyChecking=no" -T  root@${vps_ip}  <<EOF
-export CF_Key="${CF_Key}"
-export CF_Email="${CF_Email}"
-export LOCALNET="$(get_public_ip)/8"
-export CF_TOKEN_DNS="${CF_TOKEN_DNS}"
-export ZONE_ID="${ZONE_ID}"
-export DOMAIN="${DOMAIN}"
-export V2RAY_PASSWORD="${V2RAY_PASSWORD}"
-
-apt-get install -y git
-rm -rf one_key_fly
-git clone https://github.com/Grebeci/one_key_fly.git
-bash one_key_fly/v2ray_server.sh "install_v2ray"
-EOF
-
-    
-  # 修改v2ray, restart v2ray, check v2ray status
-  sed -i "s/\"address\": \".*\"/\"address\": \"$vps_ip\"/" /usr/local/etc/v2ray/config.json
-  sed -i "s/\"password\": \".*\"/\"password\": \"$V2RAY_PASSWORD\"/" /usr/local/etc/v2ray/config.json
-  # 修改最后一个port
-  tac /usr/local/etc/v2ray/config.json | sed "0,/\(\"port\":\s*\)[0-9]\+/s//\11080/" | tac > tmp && mv tmp config.json
-
-  sudo systemctl restart v2ray 
-  sudo systemctl status v2ray
-
-  # test proxy connect
-  result=$(curl -s --proxy "socks5://127.0.0.1:1080" cip.cc )
-  if [[ "$result" == *"CLOUDFLARE.COM"* ]];then
-    _info "successed, conect proxy" 
-  else
-    _err  "failed,  conect proxy" 
-  fi
   
 }
   
@@ -236,4 +201,49 @@ function delete_all_vps() {
   done
 }
 
-eval "$*"
+# auto init vps by ssh
+function auto_init_vps() {
+
+  exec 2> >(sed $'s,.*,\e[31m&\e[m,' >&2)
+  # 必须的参数
+  check_vars  "VPS_IP" "V2RAY_PASSWORD" "V2RAY_PORT"
+  if [ $? -ne 0 ]; then
+    _err "VPS_IP V2RAY_PASSWORD V2RAY_PORT is required"
+    exit 1
+  fi
+
+  ssh  -o StrictHostKeyChecking=no -i ~/.ssh/vultr root@"${VPS_IP}" <<-EOF
+  export V2RAY_PASSWORD="${V2RAY_PASSWORD}"
+  export V2RAY_PORT="${V2RAY_PORT}"
+  apt-get install -y git
+  rm -rf one_key_fly
+  git clone https://github.com/Grebeci/one_key_fly.git
+  bash -x  one_key_fly/v2ray_server.sh "install_v2ray"
+EOF
+
+  # 修改 v2ray-client, restart v2ray client, check v2ray client status
+  sed -i "s/\"address\": \".*\"/\"address\": \"$VPS_IP\"/" /usr/local/etc/v2ray/config.json
+  sed -i "s/\"password\": \".*\"/\"password\": \"$V2RAY_PASSWORD\"/" /usr/local/etc/v2ray/config.json
+  # 修改最后一个port
+  tac /usr/local/etc/v2ray/config.json | sed "0,/\(\"port\":\s*\)[0-9]\+/s//\11080/" | tac > tmp && mv tmp config.json
+
+#  sudo systemctl restart v2ray
+#  sudo systemctl status v2ray
+
+  # test proxy connect
+#  result=$(curl -s --proxy "socks5://127.0.0.1:1080" cip.cc )
+#  if [[ "$result" == *"CLOUDFLARE.COM"* ]];then
+#    _info "successed, conect proxy"
+#  else
+#    _err  "failed,  conect proxy"
+#  fi
+
+}
+
+test() {
+    export VPS_IP="207.246.120.15"
+    auto_init_vps
+}
+test
+
+#eval "$*"
