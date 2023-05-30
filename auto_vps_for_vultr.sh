@@ -48,7 +48,7 @@ function create_vps_firewall_strategy() {
   -H "Content-Type: application/json" \
   --data '{
     "ip_type" : "v4",
-    "protocol" : "SSH",
+    "protocol" : "tcp",
     "port" : "22",
     "subnet" : "'"$(get_public_ip)"'",
     "subnet_size" : 24,
@@ -218,16 +218,22 @@ function is_ping_vps() {
 }
 
 function delete_vps_by_id() {
-  instance-id=$1
-  curl "https://api.vultr.com/v2/instances/${instance-id}" \
+  instance_id=$1
+  curl "https://api.vultr.com/v2/instances/${instance_id}" \
   -X DELETE \
   -H "Authorization: Bearer ${VULTR_API_KEY}"
 }
 
 function delete_all_vps() {
-  instance_ids=curl "https://api.vultr.com/v2/instances" \
+  readarray -t instance_ids < <(curl -s "https://api.vultr.com/v2/instances" \
     -X GET \
-    -H "Authorization: Bearer ${VULTR_API_KEY}"
+    -H "Authorization: Bearer ${VULTR_API_KEY}" | jq -r '.instances | map(.id)[]'  \
+  )
+
+  for instance_id in "${instance_ids[@]}"
+  do
+    delete_vps_by_id "$instance_id"
+  done
 }
 
-create_instance
+eval "$*"
