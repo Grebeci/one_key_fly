@@ -10,7 +10,7 @@ export CF_TOKEN_DNS="${CF_TOKEN_DNS}"
 export ZONE_ID="${ZONE_ID}"
 export V2RAY_PASSWORD="${V2RAY_PASSWORD:-$(uuid)}" 
 export VULTR_API_KEY="${VULTR_API_KEY}"
-export REGION_ID=("sea" "lax" "atl" "cdg")
+export REGION_ID="${REGION_ID}"
 
 function check_vars_vps() {
     VARIABLES=("V2RAY_POER" "SQUID_HTTPS_PORT" "DOMAIN" "CF_Key" "CF_Email" "LOCALNET" "CF_TOKEN_DNS" "ZONE_ID" "V2RAY_PASSWORD")
