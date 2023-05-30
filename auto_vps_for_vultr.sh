@@ -166,7 +166,22 @@ function create_instance() {
 
   # ssh-cmd-v2ray
   ssh-keygen -f "/home/grebeci/.ssh/known_hosts" -R "$vps_ip"
-  sshpass -p ${default_password} ssh -o "StrictHostKeyChecking=no" -T  root@${vps_ip}  <<EOF
+   sshpass -p '7fJ)oLs,,rG[Z[!=' ssh -o StrictHostKeyChecking=no -T root@144.202.31.45 <<EOF
+export CF_Key="${CF_Key}"
+export CF_Email="${CF_Email}"
+export LOCALNET="$(get_public_ip)/8"
+export CF_TOKEN_DNS="${CF_TOKEN_DNS}"
+export ZONE_ID="${ZONE_ID}"
+export DOMAIN="${DOMAIN}"
+export V2RAY_PASSWORD="${V2RAY_PASSWORD}"
+
+apt-get install -y git
+rm -rf one_key_fly
+git clone https://github.com/Grebeci/one_key_fly.git
+bash -x one_key_fly/v2ray_server.sh "install_v2ray"
+EOF
+
+sshpass -p '7fJ)oLs,,rG[Z[!=' ssh -o StrictHostKeyChecking=no -T root@144.202.31.45 <<EOF
 export CF_Key="${CF_Key}"
 export CF_Email="${CF_Email}"
 export LOCALNET="$(get_public_ip)/8"
@@ -180,6 +195,7 @@ rm -rf one_key_fly
 git clone https://github.com/Grebeci/one_key_fly.git
 bash one_key_fly/v2ray_server.sh "install_v2ray"
 EOF
+
     
   # 修改v2ray, restart v2ray, check v2ray status
   sed -i "s/\"address\": \".*\"/\"address\": \"$vps_ip\"/" /usr/local/etc/v2ray/config.json
