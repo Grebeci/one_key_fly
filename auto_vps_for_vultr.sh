@@ -123,23 +123,23 @@ function create_instance() {
     -H "Authorization: Bearer ${VULTR_API_KEY}" |  jq -r '.available_plans[0]' \
   )
 
-create_vps_firewall_strategy
+  create_vps_firewall_strategy
   
-init_instance_param=$( \
-  curl -s "https://api.vultr.com/v2/instances" \
-  -X POST \
-  -H "Authorization: Bearer ${VULTR_API_KEY}" \
-  -H "Content-Type: application/json" \
-  --data '{
-    "region" : "'"${REGION_ID}"'",
-    "plan" : "'"${plan}"'",
-    "label" : "proxy",
-    "os_id" : 477,
-    "backups" : "disabled",
-    "hostname": "proxy",
-    "firewall_group_id": "'"${firewall_group_id}"'"
-  }' \
-)
+  init_instance_param=$( \
+    curl -s "https://api.vultr.com/v2/instances" \
+    -X POST \
+    -H "Authorization: Bearer ${VULTR_API_KEY}" \
+    -H "Content-Type: application/json" \
+    --data '{
+      "region" : "'"${REGION_ID}"'",
+      "plan" : "'"${plan}"'",
+      "label" : "proxy",
+      "os_id" : 477,
+      "backups" : "disabled",
+      "hostname": "proxy",
+      "firewall_group_id": "'"${firewall_group_id}"'"
+    }' \
+  )
 
   [[ $(echo $init_instance_param | grep -q "error") ]] && _err "create instance failed" &&  exit 1 
 
