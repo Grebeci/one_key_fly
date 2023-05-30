@@ -186,7 +186,7 @@ EOF
   sed -i "s/\"address\": \".*\"/\"address\": \"$vps_ip\"/" /usr/local/etc/v2ray/config.json
   sed -i "s/\"password\": \".*\"/\"password\": \"$V2RAY_PASSWORD\"/" /usr/local/etc/v2ray/config.json
   # 修改最后一个port
-  tac /usr/local/etc/v2ray/config.json | sed "0,/\(\"port\":\s*\)[0-9]\+/s//\1$V2RAY_POER/" | tac > tmp && mv tmp config.json
+  tac /usr/local/etc/v2ray/config.json | sed "0,/\(\"port\":\s*\)[0-9]\+/s//\11080/" | tac > tmp && mv tmp config.json
 
   sudo systemctl restart v2ray 
   sudo systemctl status v2ray
