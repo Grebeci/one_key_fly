@@ -222,26 +222,26 @@ function auto_init_vps() {
 EOF
 
   # 修改 v2ray-client, restart v2ray client, check v2ray client status
-  sed -i "s/\"address\": \".*\"/\"address\": \"$VPS_IP\"/" /usr/local/etc/v2ray/config.json
-  sed -i "s/\"password\": \".*\"/\"password\": \"$V2RAY_PASSWORD\"/" /usr/local/etc/v2ray/config.json
+  sudo sed -i "s/\"address\": \".*\"/\"address\": \"$VPS_IP\"/" /usr/local/etc/v2ray/config.json
+  sudo sed -i "s/\"password\": \".*\"/\"password\": \"$V2RAY_PASSWORD\"/" /usr/local/etc/v2ray/config.json
   # 修改最后一个port
-  tac /usr/local/etc/v2ray/config.json | sed "0,/\(\"port\":\s*\)[0-9]\+/s//\11080/" | tac > tmp && mv tmp config.json
+  sudo tac /usr/local/etc/v2ray/config.json | sed "0,/\(\"port\":\s*\)[0-9]\+/s//\11080/" | tac > tmp && mv tmp config.json
 
-#  sudo systemctl restart v2ray
-#  sudo systemctl status v2ray
+  sudo systemctl restart v2ray
+  sudo systemctl status v2ray
 
   # test proxy connect
-#  result=$(curl -s --proxy "socks5://127.0.0.1:1080" cip.cc )
-#  if [[ "$result" == *"CLOUDFLARE.COM"* ]];then
-#    _info "successed, conect proxy"
-#  else
-#    _err  "failed,  conect proxy"
-#  fi
+  result=$(curl -s --proxy "socks5://127.0.0.1:1080" cip.cc )
+  if [[ "$result" == *"CLOUDFLARE.COM"* ]];then
+    _info "successes, connect proxy"
+  else
+    _err  "failed,  connect proxy"
+  fi
 
 }
 
 test() {
-    export VPS_IP="207.246.120.15"
+    export VPS_IP="139.180.222.208"
     auto_init_vps
 }
 test
