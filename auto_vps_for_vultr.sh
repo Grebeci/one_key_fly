@@ -218,7 +218,7 @@ function auto_init_vps() {
   apt-get install -y git
   rm -rf one_key_fly
   git clone https://github.com/Grebeci/one_key_fly.git
-  bash -x  one_key_fly/v2ray_server.sh "install_v2ray"
+  bash  one_key_fly/v2ray_server.sh "install_v2ray"
 EOF
 
   # 修改 v2ray-client, restart v2ray client, check v2ray client status
