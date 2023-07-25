@@ -227,8 +227,8 @@ EOF
   # 修改最后一个port
   sudo tac /usr/local/etc/v2ray/config.json | sed "0,/\(\"port\":\s*\)[0-9]\+/s//\11080/" | tac > tmp && mv tmp config.json
 
-  sudo systemctl restart v2ray
-  sudo systemctl status v2ray
+  sudo systemctl --no-pager restart v2ray
+  sudo systemctl --no-pager status v2ray
 
   # test proxy connect
   result=$(curl -s --proxy "socks5://127.0.0.1:1080" cip.cc )
