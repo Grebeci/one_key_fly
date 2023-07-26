@@ -203,8 +203,6 @@ function delete_all_vps() {
 
 # auto init vps by ssh
 function auto_init_vps() {
-
-  exec 2> >(sed $'s,.*,\e[31m&\e[m,' >&2)
   # 必须的参数
   check_vars  "VPS_IP" "V2RAY_PASSWORD" "V2RAY_PORT"
   if [ $? -ne 0 ]; then

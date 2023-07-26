@@ -20,7 +20,7 @@ export REGION_ID="${REGION_ID}"
 
 # Given any number of parameters, check if there is a value for each parameter
 function check_vars() {
-    # params: check_vars VAR1 VAR2 VAR3 .
+
     local VARIABLES=("$@")
     local empty_count=0
 
@@ -30,6 +30,7 @@ function check_vars() {
         _err "$var is empty"
         # if there is no value, let user input
         read -p "please enter "$var": " value
+        eval export $var=\$value
         empty_count=$((empty_count + 1))
     else
         _info "$var has value: $value"
