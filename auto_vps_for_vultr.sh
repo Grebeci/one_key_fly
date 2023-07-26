@@ -1,6 +1,6 @@
 #!/bin/bash
 
-HOME_DIR=$(cd "$(dirname "$0")"; pwd)
+HOME_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 CONF_DIR=${HOME_DIR}/conf
 ETC_DIR=${HOME_DIR}/etc
 
@@ -202,7 +202,7 @@ function delete_all_vps() {
 }
 
 # auto init vps by ssh
-function auto_init_vps() {
+function auto_install_v2ray() {
   # 必须的参数
   check_vars  "VPS_IP" "V2RAY_PASSWORD" "V2RAY_PORT"
   if [ $? -ne 0 ]; then
@@ -238,6 +238,14 @@ EOF
 
 }
 
+# TODO
+function auto_install_v2ray_in_vultr() {
+  :
+  # vps_firewall
+  # create vps_instance
+  # install v2ray
+  # ping vps
+}
 # check user command
 if ! grep -q "$1()" "$0"; then
   _err "invalid command"
