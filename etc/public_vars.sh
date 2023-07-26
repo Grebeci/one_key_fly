@@ -29,15 +29,12 @@ function check_vars() {
     if [ -z "$value" ]; then
         _err "$var is empty"
         # if there is no value, let user input
-        read -p "please enter "$var": " value
-        eval export $var=\$value
         empty_count=$((empty_count + 1))
     else
         _info "$var has value: $value"
     fi
     done
 
-    echo $empty_count
     [[ $empty_count -ge 1 ]] && return 1
     return 0
 }
