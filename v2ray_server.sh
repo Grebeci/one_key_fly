@@ -23,17 +23,17 @@ EOF
 }
 
 function build_v2ray_server_for_debian() {
-    check_vars V2RAY_PORT
+    check_vars V2RAY_PORT V2RAY_PASSWORD
     # 安装 v2ray
     apt-get install -y curl
     bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh)
     [[ -f /usr/local/etc/v2ray/config.json ]] && rm -f /usr/local/etc/v2ray/config.json
-    cp ${CONF_DIR}/config.json /usr/local/etc/v2ray/config.json
+    cp "${CONF_DIR}"/config.json /usr/local/etc/v2ray/config.json
     sed -i "s/\"port\": 60822,/\"port\": ${V2RAY_PORT},/g"  /usr/local/etc/v2ray/config.json
     sed -i "s/\"password\": \".*\"/\"password\": \"$V2RAY_PASSWORD\"/" /usr/local/etc/v2ray/config.json
 
     #防火墙
-    ufw allow ${V2RAY_PORT}
+    ufw allow "${V2RAY_PORT}"
     ufw status
 
     # 安装wrap : 针对 chatGPT,new bing 隐藏地理位置
@@ -164,6 +164,10 @@ function install_all() {
 
 function install_v2ray(){
    init_vps && build_v2ray_server_for_debian
+}
+
+function install_bind_domain() {
+   bind_domain_for_vps
 }
 
 eval "$*"

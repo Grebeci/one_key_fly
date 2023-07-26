@@ -240,10 +240,4 @@ EOF
 
 }
 
-test() {
-    export VPS_IP="139.180.222.208"
-    auto_init_vps
-}
-test
-
-#eval "$*"
+eval "$*"
