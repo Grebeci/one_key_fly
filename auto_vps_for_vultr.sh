@@ -238,4 +238,9 @@ EOF
 
 }
 
+# check user command
+if ! grep -q "$1()" "$0"; then
+  _err "invalid command"
+  exit 1
+fi
 eval "$*"

@@ -72,6 +72,7 @@ function build_v2ray_server_for_debian() {
 }
 
 function build_squid_server_for_debian() {
+  check_vars SQUID_HTTPS_PORT LOCALNET
   echo 1 > /proc/sys/net/ipv4/ip_forward
   apt install squid -y
   [[ -f /etc/squid/squid.conf ]] && rm -rf /etc/squid/squid.conf
@@ -82,26 +83,26 @@ function build_squid_server_for_debian() {
 
   # 1. SSL configuration for Squid 
   apply_SSL_cert_by_acme
-cat << EOF > /etc/squid/conf.d/port.conf
-https_port ${SQUID_HTTPS_PORT} tls-cert=/etc/ssl/certs/grebeci.top.cert tls-key=/etc/ssl/certs/grebeci.top.key
+  cat <<- EOF > /etc/squid/conf.d/port.conf
+  https_port ${SQUID_HTTPS_PORT} tls-cert=/etc/ssl/certs/grebeci.top.cert tls-key=/etc/ssl/certs/grebeci.top.key
 EOF
   
   # 2. allow IP pass 
-cat << EOF > /etc/squid/conf.d/acl.conf
-acl localnet src ${LOCALNET}
+  cat <<- EOF > /etc/squid/conf.d/acl.conf
+  acl localnet src ${LOCALNET}
 EOF
 
   # 3. user auth
   rm -rf /etc/squid/passwords
   htpasswd -cd /etc/squid/passwords squid
-cat << EOF > /etc/squid/conf.d/auth.conf
-auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwords
-auth_param basic children 5
-auth_param basic realm Squid proxy-caching web server
-auth_param basic credentialsttl 30 minutes
-auth_param basic casesensitive on
-acl ncsa_users proxy_auth REQUIRED
-http_access allow ncsa_users
+  cat <<- EOF > /etc/squid/conf.d/auth.conf
+  auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwords
+  auth_param basic children 5
+  auth_param basic realm Squid proxy-caching web server
+  auth_param basic credentialsttl 30 minutes
+  auth_param basic casesensitive on
+  acl ncsa_users proxy_auth REQUIRED
+  http_access allow ncsa_users
 EOF
 
   # firewall  
@@ -167,7 +168,8 @@ function install_v2ray(){
 }
 
 function install_bind_domain() {
-   bind_domain_for_vps
+   check_vars DOMAIN ZONE_ID CF_Key CF_Email CF_TOKEN_DNS
+   apply_SSL_cert_by_acme && bind_domain_for_vps
 }
 
 eval "$*"
