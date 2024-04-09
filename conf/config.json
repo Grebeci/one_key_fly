@@ -6,13 +6,22 @@
   },
   "inbounds": [
     {
-      "port": 60822,
-      "protocol": "shadowsocks",
+      "port": 10000,
+      "listen":"127.0.0.1",
+      "protocol": "vmess",
       "settings": {
-        "method": "aes-256-gcm",
-        "password": "www.130wang.com",
-        "network": "tcp,udp",
-        "level": 0
+        "clients": [
+          {
+            "id": "",
+            "alterId": 0
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "wsSettings": {
+        "path": "/ray"
+        }
       }
     }
   ],

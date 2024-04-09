@@ -1,42 +1,27 @@
 # one-key-fly
-v2ray 服务器快速初始化
+v2ray 服务器快速初始化(支持TLS)
 
 # 使用方式
-#### in vps shell  
+
+in vps shell  
+
+```bash
+sudo apt-get update
+sudo apt-get install -y git
+git clone https://github.com/Grebeci/one_key_fly.git
+```
+
 ```
 export DOMAIN="grebeci.top"
-export CF_Key=""
-export CF_Email=""
-export LOCALNET=""
 export CF_TOKEN_DNS=""
 export ZONE_ID=""
-export VULTR_API_KEY=""
-export V2RAY_PASSWORD=""
-```
-bash v2ray_server.sh "install_v2ray"
-
-#### in local (linux)
-```
-export DOMAIN="grebeci.top"
 export CF_Key=""
 export CF_Email=""
-export LOCALNET=""
-export CF_TOKEN_DNS=""
-export ZONE_ID=""
-export VULTR_API_KEY=""
-export V2RAY_PASSWORD=""
-# export REGION_ID=("sea" "lax" "atl" "cdg")
-export REGION_ID="atl"  
+export GIST_V2RAY_TOKEN=""
+export GIST_ID=""
 ```
-bash auto_vps_for_vultr.sh "create_instace"
 
-
-
-# todo
-1. 仍未解决 Squid 无法代理 bing 问题
-
-# next
-1. 添加usage ，增加让选择 region的方式
-    - 查询可用的region
-2. 增加功能： 本地iP更改，自动修改firewall
+```bash
+bash install_v2ray.sh "install_v2ray_TLS"
+```
 

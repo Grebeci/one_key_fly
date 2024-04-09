@@ -1,22 +1,19 @@
 #!/bin/bash
 
 HOME_DIR=$(cd "$(dirname "$0")" || exit; pwd)
-ETC_DIR=${HOME_DIR}/etc
-source "${ETC_DIR}"/colorprint.sh
+CONF_DIR=${HOME_DIR}/conf
+UTILS_DIR=${HOME_DIR}/utils
 
-export V2RAY_PORT="60822"
-export V2RAY_PASSWORD="${V2RAY_PASSWORD:-$(uuid)}"
-export VPS_IP="${VPS_IP}"
-export SQUID_HTTPS_PORT="22806"
+source ${UTILS_DIR}/colorprint.sh
+
+# 全局配置信息，必须依赖外部传入
 export DOMAIN="${DOMAIN}"
-export CF_Key="${CF_Key}"
-export CF_Email="${CF_Email}"
-export LOCALNET="${LOCALNET}"
 export CF_TOKEN_DNS="${CF_TOKEN_DNS}"
 export ZONE_ID="${ZONE_ID}"
-
-export VULTR_API_KEY="${VULTR_API_KEY}"
-export REGION_ID="${REGION_ID}"
+export CF_Key="${CF_Key}"
+export CF_Email="${CF_Email}"
+export GIST_V2RAY_TOKEN="${GIST_V2RAY_TOKEN}"
+export GIST_ID="${GIST_ID}"
 
 # Given any number of parameters, check if there is a value for each parameter
 function check_vars() {
