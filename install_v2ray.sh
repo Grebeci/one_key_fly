@@ -244,7 +244,7 @@ function start_sevice() {
         _error "verify failed ......."
         exit 7
     fi
-
+}
 
 # 客户端配置文件通过 https://gist.github.com 分享
 function distribute_client_config() {
